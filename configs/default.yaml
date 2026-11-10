@@ -1,0 +1,49 @@
+# All paths are relative to $DTG_DATA (set it in setup/env.sh).
+# Keep large data OUT of your home directory (Oscar home quota is 20GB).
+
+anchor: clip_b32              # frozen text encoder that defines the shared space
+
+# Each encoder pair = one image encoder + one audio encoder, both bridged to the anchor.
+# Pick pairs that span different gap-to-residual ratios (check with E1 first).
+encoder_pairs:
+  clipB32_laionclap:
+    image: clip_b32
+    audio: laion_clap
+  clipL14_laionclap:
+    image: clip_l14
+    audio: laion_clap
+  # siglip_msclap: {image: siglip_b16, audio: ms_clap}   # add once the encoder is wired in encoders.py
+
+manifests:                    # CSVs with columns: id, path, caption  (eval: id, image_path, audio_path)
+  image_text_train: manifests/coco_train.csv
+  image_text_val:   manifests/coco_val.csv
+  audio_text_train: manifests/audiocaps_train.csv
+  audio_text_val:   manifests/audiocaps_val.csv
+  image_audio_train: manifests/vggsound_train.csv   # E5 only (direct pairs)
+  image_audio_test:  manifests/vggsound_test.csv    # held-out evaluation, never used for fitting
+
+features_dir: features        # encode.py writes here
+runs_dir: runs                # heads, results, figures
+
+heads:
+  hidden: 1024                # 0 = linear head
+  epochs: 20
+  batch_size: 1024
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  temperature: 0.05
+
+seeds: [0, 1, 2]
+
+eval:
+  pool_size: 1000             # candidates per retrieval pool
+  n_pools: 5                  # average recall over this many random pools
+  ks: [1, 5, 10]
+
+sweep:
+  lambdas: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
+  modes: [query, candidate, both]
+
+e5:
+  ns: [10, 100, 1000, 10000, -1]   # -1 = all training pairs
+  epochs: 50
