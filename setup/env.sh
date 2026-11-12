@@ -3,7 +3,8 @@
 
 export DTG_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export DTG_DATA="${DTG_DATA:-$HOME/scratch/dtg}"      # <-- change if your big-storage path differs
-export DTG_VENV="${DTG_VENV:-$DTG_DATA/venv}"
+export DTG_VENV="${DTG_VENV:-$HOME/venvs/dtg}"
+export DTG_RAW="${DTG_RAW:-$HOME/scratch/dtg/raw}" 
 
 # Model downloads go to big storage too, or they will fill your home quota.
 export HF_HOME="$DTG_DATA/hf_cache"

@@ -9,3 +9,4 @@ soundfile
 librosa
 pillow
 matplotlib
+pyarrow
